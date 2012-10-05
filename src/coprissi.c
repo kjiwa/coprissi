@@ -108,7 +108,7 @@ _ftw_callback(char const* fpath, struct stat const* sb, int typeflag)
 	if (exif_entry != NULL
 	    && exif_entry_get_value(exif_entry, exif_entry_val, 20) != NULL
 	    && strptime(exif_entry_val, "%Y:%m:%d %H:%M:%S", &tm) != 0
-	    && sprintf(dst, _DST_FORMAT, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday) >= 0
+	    && sprintf(dst, "%d/%02d/%02d", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday) >= 0
 	    && _mkdir_recursive(dst) == 0) {
 		size_t offset;
 		char* dst_fpath;
@@ -118,7 +118,7 @@ _ftw_callback(char const* fpath, struct stat const* sb, int typeflag)
 			--offset;
 		}
 
-		dst_fpath = (char*) malloc(sizeof(_DST_FORMAT) + strlen(fpath + offset));
+		dst_fpath = (char*) malloc(strlen(dst) + strlen(fpath + offset) + 2);
 		sprintf(dst_fpath, "%s/%s", dst, fpath + offset);
 		rc = _cp(dst_fpath, fpath);
 		free(dst_fpath);
