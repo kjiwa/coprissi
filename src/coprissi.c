@@ -16,8 +16,6 @@
 #include <time.h>
 #include <unistd.h>
 
-#define _DST_FORMAT "%d/%02d/%02d"
-
 int const _FTW_NOPENFD = 10;
 char const static* _NAME;
 
