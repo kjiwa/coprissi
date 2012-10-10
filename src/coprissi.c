@@ -16,8 +16,6 @@
 #include <time.h>
 #include <unistd.h>
 
-#define _DST_FORMAT "%d/%02d/%02d"
-
 int const _FTW_NOPENFD = 10;
 char const static* _NAME;
 char const static* _DST;
@@ -110,10 +108,10 @@ _ftw_callback(char const* fpath, struct stat const* sb, int typeflag)
 		size_t dst_size;
 		char* dst;
 
-		dst_size = strlen(_DST) + sizeof(_DST_FORMAT) + 1;
+		dst_size = strlen(_DST) + 12;
 		dst = (char*) malloc(dst_size);
 
-	  if (sprintf(dst, "%s/" _DST_FORMAT, _DST, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday) >= 0 && _mkdir_recursive(dst) == 0) {
+	  if (snprintf(dst, dst_size, "%s/%d/%02d/%02d", _DST, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday) >= 0 && _mkdir_recursive(dst) == 0) {
 			size_t offset;
 			char* dst_fpath;
 
