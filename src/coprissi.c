@@ -16,8 +16,11 @@
 #include <time.h>
 #include <unistd.h>
 
+#define _DST_FORMAT "%d/%02d/%02d"
+
 int const _FTW_NOPENFD = 10;
 char const static* _NAME;
+char const static* _DST;
 
 int static _cp(char const* src, char const* dst);
 int static _ftw_callback(char const* fpath, struct stat const* sb, int typeflag);
@@ -88,7 +91,6 @@ _ftw_callback(char const* fpath, struct stat const* sb, int typeflag)
 	ExifEntry* exif_entry;
 	char exif_entry_val[20];
 	struct tm tm;
-	char dst[11];
 
 	if (!S_ISREG(sb->st_mode)) {
 		return 0;
@@ -101,31 +103,39 @@ _ftw_callback(char const* fpath, struct stat const* sb, int typeflag)
 
 	rc = 0;
 	exif_entry = exif_content_get_entry(*(exif_data->ifd), EXIF_TAG_DATE_TIME);
-	exif_data_unref(exif_data);
 
 	if (exif_entry != NULL
 	    && exif_entry_get_value(exif_entry, exif_entry_val, 20) != NULL
-	    && strptime(exif_entry_val, "%Y:%m:%d %H:%M:%S", &tm) != 0
-	    && sprintf(dst, "%d/%02d/%02d", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday) >= 0
-	    && _mkdir_recursive(dst) == 0) {
-		size_t offset;
-		char* dst_fpath;
+	    && strptime(exif_entry_val, "%Y:%m:%d %H:%M:%S", &tm) != 0) {
+		size_t dst_size;
+		char* dst;
 
-		offset = strlen(fpath);
-		while (offset > 0 && fpath[offset - 1] != '/') {
-			--offset;
+		dst_size = strlen(_DST) + sizeof(_DST_FORMAT) + 1;
+		dst = (char*) malloc(dst_size);
+
+	  if (sprintf(dst, "%s/" _DST_FORMAT, _DST, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday) >= 0 && _mkdir_recursive(dst) == 0) {
+			size_t offset;
+			char* dst_fpath;
+
+			offset = strlen(fpath);
+			while (offset > 0 && fpath[offset - 1] != '/') {
+				--offset;
+			}
+
+			dst_fpath = (char*) malloc(strlen(dst) + strlen(fpath + offset) + 2);
+			sprintf(dst_fpath, "%s/%s", dst, fpath + offset);
+			rc = _cp(dst_fpath, fpath);
+			free(dst_fpath);
+
+			if (rc == -1 && errno == EEXIST) {
+				rc = 0;
+			}
 		}
 
-		dst_fpath = (char*) malloc(strlen(dst) + strlen(fpath + offset) + 2);
-		sprintf(dst_fpath, "%s/%s", dst, fpath + offset);
-		rc = _cp(dst_fpath, fpath);
-		free(dst_fpath);
-
-		if (rc == -1 && errno == EEXIST) {
-			rc = 0;
-		}
+		free(dst);
 	}
 
+	exif_data_unref(exif_data);
 	return rc;
 }
 
@@ -141,13 +151,11 @@ _mkdir_recursive(char const* path)
 	tmp = (char*) malloc(size + 1);
 	strcpy(tmp, path);
 
-
 	rc = 0;
-	for (i = 0; i < size; ++i) {
+	for (i = 1; i < size; ++i) {
 		if (tmp[i] == '/') {
 			tmp[i] = '\0';
-			if (mkdir(tmp, S_IRWXU) != 0
-			    && errno != EEXIST) {
+			if (mkdir(tmp, S_IRWXU) != 0 && errno != EEXIST) {
 				rc = -1;
 				break;
 			}
@@ -174,7 +182,6 @@ int
 main(int argc, char** argv)
 {
 	char const* src;
-	char const* dst;
 	struct stat stat_buf;
 	int rc;
 
@@ -186,7 +193,7 @@ main(int argc, char** argv)
 	}
 
 	src = argv[1];
-	dst = argv[2];
+	_DST = argv[2];
 
 	if (stat(src, &stat_buf) != 0 || !S_ISDIR(stat_buf.st_mode)) {
 		printf("%s is not a directory.\n", src);
@@ -194,8 +201,8 @@ main(int argc, char** argv)
 		exit(-1);
 	}
 
-	if (stat(dst, &stat_buf) != 0 || !S_ISDIR(stat_buf.st_mode)) {
-		printf("%s is not a directory.\n", dst);
+	if (stat(_DST, &stat_buf) != 0 || !S_ISDIR(stat_buf.st_mode)) {
+		printf("%s is not a directory.\n", _DST);
 		_usage();
 		exit(-1);
 	}
