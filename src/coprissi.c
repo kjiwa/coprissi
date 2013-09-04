@@ -16,7 +16,7 @@
 #include <time.h>
 #include <unistd.h>
 
-int const _FTW_NOPENFD = 10;
+static int const _FTW_NOPENFD = 10;
 static char const* _NAME;
 static char const* _DST;
 
