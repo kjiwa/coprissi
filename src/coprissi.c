@@ -17,15 +17,15 @@
 #include <unistd.h>
 
 int const _FTW_NOPENFD = 10;
-char const static* _NAME;
-char const static* _DST;
+static char const* _NAME;
+static char const* _DST;
 
-int static _cp(char const* src, char const* dst);
-int static _ftw_callback(char const* fpath, struct stat const* sb, int typeflag);
-int static _mkdir_recursive(char const* path);
-void static _usage();
+static int _cp(char const* src, char const* dst);
+static int _ftw_callback(char const* fpath, struct stat const* sb, int typeflag);
+static int _mkdir_recursive(char const* path);
+static void _usage();
 
-int static
+static int
 _cp(const char *to, const char *from)
 {
 	int fd_to;
@@ -81,7 +81,7 @@ out_error:
 	return -1;
 }
 
-int static
+static int
 _ftw_callback(char const* fpath, struct stat const* sb, int typeflag)
 {
 	int rc;
@@ -137,7 +137,7 @@ _ftw_callback(char const* fpath, struct stat const* sb, int typeflag)
 	return rc;
 }
 
-int static
+static int
 _mkdir_recursive(char const* path)
 {
 	char* tmp;
@@ -170,7 +170,7 @@ _mkdir_recursive(char const* path)
 	return rc;
 }
 
-void static
+static void
 _usage()
 {
 	printf("%s <source> <destination>\n", _NAME);
