@@ -2,7 +2,7 @@
 
 ## Overview
 
-Coprissi is an image management tool. It recursively scans for image files in a source directory, create an output directory structure based on the dates the photos were taken, and copy the images into the appropriate output folder.
+Coprissi is an image management tool. It recursively scans for image files in a source directory, creates an output directory structure based on the dates the photos were taken, and copies the images into the appropriate output folders.
 
 ## Usage
 
@@ -10,7 +10,7 @@ Coprissi is an image management tool. It recursively scans for image files in a 
 
 ## Example
 
-For example, you may have a source directory with these images:
+Suppose you have a source directory with these images:
 
     src/Josie's Bday 01.jpg
     src/Josie's Bday 02.jpg
