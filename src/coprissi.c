@@ -21,7 +21,8 @@ static char const* _NAME;
 static char const* _DST;
 
 static int _cp(char const* src, char const* dst);
-static int _ftw_callback(char const* fpath, struct stat const* sb, int typeflag);
+static int _ftw_callback(
+    char const* fpath, struct stat const* sb, int typeflag);
 static int _mkdir_recursive(char const* path);
 static void _usage();
 
