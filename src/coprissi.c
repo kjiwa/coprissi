@@ -27,7 +27,8 @@ static int _mkdir_recursive(char const* path);
 static void _usage();
 
 /**
- * Copies a file to a specified destination file.
+ * Copies a file to a specified destination file. See
+ * http://stackoverflow.com/a/2180788.
  * @param to The new file name.
  * @param from The file being copied.
  * @return 0 if the file was successfully copied. -1 if there was an error.
